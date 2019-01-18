@@ -10,7 +10,11 @@ const Artist = require('../models/artist');
  */
 module.exports = (criteria, sortProperty, offset = 0, limit = 20) => {
   const count = Artist.estimatedDocumentCount();
-  const all = Artist.find({}).sort(`-${sortProperty}`).skip(offset).limit(limit);
+  const all = Artist
+    .find(buildQuery(criteria))
+    .sort(`${sortProperty}`)
+    .skip(offset)
+    .limit(limit);
 
   return Promise.all([all, count]).then((results) => {
     return {
@@ -21,3 +25,29 @@ module.exports = (criteria, sortProperty, offset = 0, limit = 20) => {
     };
   });
 };
+
+const buildQuery = (criteria) {
+  let query = {};
+
+  const {
+    age,
+    name,
+    yearsActive
+  } = criteria;
+
+  if (age) {
+    query.age = {
+      $gte: age.min,
+      $lte: age.max
+    };
+  }
+
+  if (yearsActive) {
+    query.yearsActive = {
+      $gte: yearsActive.min,
+      $lte: yearsActive.max
+    };
+  }
+
+  return query;
+}
