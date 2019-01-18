@@ -26,14 +26,20 @@ module.exports = (criteria, sortProperty, offset = 0, limit = 20) => {
   });
 };
 
-const buildQuery = (criteria) {
-  let query = {};
+const buildQuery = (criteria) => {
+  const query = {};
 
   const {
     age,
     name,
     yearsActive
   } = criteria;
+
+  if (name) {
+    query.$text = {
+      $search: criteria.name
+    };
+  }
 
   if (age) {
     query.age = {
